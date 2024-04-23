@@ -104,8 +104,7 @@ void Test()
 ## 3. 继承中的作用域
 
 1. 在继承体系中基类和派生类都有独立的作用域.
-2. 子类和父类中有同名成员,子类成员将屏蔽父类对同名成员的直接访问,这种情况叫隐蔽,也叫重定义.
-    (在子类成员函数中,可以使用 基类::基类成员 显示访问)
+2. 子类和父类中有同名成员,子类成员将屏蔽父类对同名成员的直接访问,这种情况叫隐藏,也叫重定义.(在子类成员函数中,可以使用 基类::基类成员 显示访问)
 3. 需要注意的是如果是成员函数的隐藏,只需要函数名相同就构成隐藏.
 4. 注意在实际的继承体系里面最好不要定义同名成员.
 
@@ -141,6 +140,7 @@ protected:
 4. 派生类的析构函数会在被调用完成后自动调用基类的析构函数清理基类成员.因为这样才能保证派生类对象先清理派生类成员再清理基类成员的顺序.
 5. 派生类对象初始化先调用基类构造,再调用派生类构造.
 6. 派生类对象析构清理先调用派生类析构,再调用基类析构.
+7. 因为后续一些场景析构函数需要构成重写,重写的条件之一是函数名相同.那么编译器会对析构函数名进行特殊处理,处理成 `destructor()` ,所以父类析构函数不加 `virtual` 的情况下,子类析构函数和父类析构函数构成隐藏关系.
 
 ```C++{.line-numbers}
 class Person
@@ -170,7 +170,7 @@ public:
 protected:
     string _name;
 };
-class Student:public Person
+class Student : public Person
 {
 public:
     Student(const char* name,int num)
@@ -219,6 +219,9 @@ int main()
 
 **友元关系不能继承** ,也就是说基类友元不能访问子类私有和保护成员.
 
+> 类的友元函数是定义在类外部,但有权访问类的所有私有 `private` 成员和保护 `protected` 成员.尽管友元函数的原型有在类的定义中出现过,但是友元函数并不是成员函数.  
+> 友元可以是一个函数,该函数被称为友元函数;友元也可以是一个类,该类被称为友元类,在这种情况下,整个类及其所有成员都是友元.
+
 ```C++{.line-numbers}
 class Person
 {
@@ -227,7 +230,7 @@ public:
 protected:
     string _name;
 };
-class Student:public Person
+class Student : public Person
 {
 protected:
     int _stuNum;
@@ -241,7 +244,7 @@ void maain()
 {
     Person p;
     Student s;
-    Display(p,s);//错误
+    Display(p,s);//error
 }
 ```
 
@@ -300,23 +303,25 @@ void TestPerson()
 
 菱形继承的问题:从下面的对象成员模型构造,可以看出菱形继承有数据冗余和二义性的问题.在 `Assistant` 的对象中 `Person` 成员会有两份.
 
+![](7-d.svg)
+
 ```C++{.line-numbers}
 class Person
 {
 public:
     string _name;
 };
-class Student:public Person
+class Student : public Person
 {
 protected:
     int _num;
 };
-class Teacher:public Person
+class Teacher : public Person
 {
 protected:
     int _id;
 };
-class Assistant:public Student,public Teacher
+class Assistant : public Student,public Teacher
 {
 protected:
     string _majorCourse;
@@ -370,7 +375,8 @@ void Test()
 
 **虚拟继承解决数据冗余和二义性的原理**
 
-![](7-d.svg)
+![](7-e.svg)
+![](7-f.svg)
 
 虚拟继承虽然解决了菱形继承产生的二义性和数据冗余问题,但是为了解决一个 `int` 数据的冗余却开辟了两个存放虚基表的空间,而且访问虚基类数据时,要通过虚基表进行间接访问,效率会比较低,带来性能上的损耗,所以非必要时尽量避免菱形继承.
 
