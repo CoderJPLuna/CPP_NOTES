@@ -259,3 +259,393 @@ void PostOrder(TreeNode* root)
 * 若它的左子树不为空,则左子树上所有节点的值都小于根节点的值.
 * 若它的右子树不为空,则右子树上所有节点的值都大于根节点的值.
 * 它的左右子树也分别为二叉搜索树.
+
+### 5.2 二叉搜索树操作
+
+1. 二叉搜索树的查找
+   1. 从根节点开始比较,查找,比根大则往右边走查找,比根小则往左边走查找.
+   2. 最多查找高度次,走到空还未找到,这个值不存在.
+2. 二叉搜索树的插入
+   1. 树为空,新增节点,赋值给root指针.
+   2. 树不为空,按二叉搜索树性质查找插入位置,插入新节点.
+3. 二叉搜索树的删除
+   首先查找元素是否在二叉搜索树中,如果不存在,则返回,否则要删除的节点可能分四种情况:
+   1. 要删除的节点无孩子节点.
+   2. 要删除的节点只有左孩子节点.
+   3. 要删除的节点只有右孩子节点.
+   4. 要删除的节点有左,右孩子节点.
+   实际情况,情况1与情况2或者情况3合并起来:
+   1. 删除该节点且使被删除节点的双亲节点指向被删除节点的左孩子节点--直接删除.
+   2. 删除该节点且使被删除节点的双亲节点指向被删除节点的右孩子节点--直接删除.
+   3. 在它的右子树中寻找中序下的第一个节点(关键码最小),用它的值填补到被删除节点中,再来处理该节点的删除问题--替换法删除.
+
+### 5.3 二叉搜索树的实现
+
+```C++{.line-numbers}
+#pragma once
+template <class K>
+struct BinarySearchTreeNode
+{
+    BinarySearchTreeNode<K> *_left;
+    BinarySearchTreeNode<K> *_right;
+    K _key;
+    BinarySearchTreeNode(const K &key)
+        : _left(nullptr), _right(nullptr), _key(key)
+    {
+    }
+};
+template <class K>
+class BinarySearchTree
+{
+public:
+    bool Find(const K &key)
+    {
+        BinarySearchTreeNode<K> *cur = _root;
+        while (cur)
+        {
+            if (cur->_key < key)
+            {
+                cur = cur->_right;
+            }
+            else if (cur->_key > key)
+            {
+                cur = cur->_left;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    bool Insert(const K &key)
+    {
+        if (_root == nullptr)
+        {
+            _root = new BinarySearchTreeNode<K>(key);
+            return true;
+        }
+        BinarySearchTreeNode<K> *parent = nullptr;
+        BinarySearchTreeNode<K> *cur = _root;
+        while (cur)
+        {
+            if (cur->_key < key)
+            {
+                parent = cur;
+                cur = cur->_right;
+            }
+            else if (cur->_key > key)
+            {
+                parent = cur;
+                cur = cur->_left;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        cur = new BinarySearchTreeNode<K>(key);
+        if (parent->_key < key)
+        {
+            parent->_right = cur;
+        }
+        else
+        {
+            parent->_left = cur;
+        }
+        return true;
+    }
+    bool Erase(const K &key)
+    {
+        BinarySearchTreeNode<K> *parent = nullptr;
+        BinarySearchTreeNode<K> *cur = _root;
+        while (cur)
+        {
+            if (cur->_key < key)
+            {
+                parent = cur;
+                cur = cur->_right;
+            }
+            else if (cur->_key > key)
+            {
+                parent = cur;
+                cur = cur->_left;
+            }
+            else
+            {
+                if (cur->_left == nullptr)
+                {
+                    if (cur == _root)
+                    {
+                        _root = cur->_right;
+                    }
+                    else
+                    {
+                        if (cur == parent->_left)
+                        {
+                            parent->_left = cur->_right;
+                        }
+                        else
+                        {
+                            parent->_right = cur->_right;
+                        }
+                    }
+                    delete cur;
+                }
+                else if (cur->_right == nullptr)
+                {
+                    if (cur == parent->_left)
+                    {
+                        parent->_left = cur->_left;
+                    }
+                    else
+                    {
+                        parent->_right = cur->_left;
+                    }
+                    delete cur;
+                }
+                else
+                {
+                    BinarySearchTreeNode<K> *rightMinParent = cur;
+                    BinarySearchTreeNode<K> *rightMin = cur->_right;
+                    while (rightMin->_left)
+                    {
+                        rightMinParent = rightMin;
+                        rightMin = rightMin->_left;
+                    }
+                    cur->_key = cur->_key ^ rightMin->_key;
+                    rightMin->_key = cur->_key ^ rightMin->_key;
+                    cur->_key = cur->_key ^ rightMin->_key;
+                    if (rightMinParent->_left == rightMin)
+                    {
+                        rightMinParent->_left = rightMin->_right;
+                    }
+                    else
+                    {
+                        rightMinParent->_right = rightMin->_right;
+                    }
+                    delete true;
+                }
+            }
+            return false;
+        }
+    }
+    void InOrder()
+    {
+        _InOrder(_root);
+    }
+
+private:
+    void _InOrder(BinarySearchTreeNode<K> *root)
+    {
+        if (root == nullptr)
+        {
+            return;
+        }
+        _InOrder(root->_left);
+        std::cout << root->_key << " ";
+        _InOrder(root->_right);
+    }
+    BinarySearchTreeNode<K> *_root = nullptr;
+};
+```
+
+### 5.4 二叉搜索树的应用
+
+1. K模型:K模型即只有Key作为关键码,结构中只需要存储Key即可,关键码即为需要搜索到的值.
+2. KV模型:每一个关键码Key,都有与之对应的值Value,即<Key,Value>的键值对.
+
+```C++{.line-numbers}
+template <class K, class V>
+struct BinarySearchTreeNode
+{
+    BinarySearchTreeNode<K, V> *_left;
+    BinarySearchTreeNode<K, V> *_right;
+    K _key;
+    V _value;
+    BinarySearchTreeNode(const K &key, const V &value)
+        : _left(nullptr), _right(nullptr), _key(key), _value(value)
+    {
+    }
+};
+template <class K, class V>
+class BinarySearchTree
+{
+public:
+    bool Insert(const K &key, const V &value)
+    {
+        if (_root == nullptr)
+        {
+            _root = new BinarySearchTreeNode<K, V>(key, value);
+            return true;
+        }
+        BinarySearchTreeNode<K, V> *parent = nullptr;
+        BinarySearchTreeNode<K, V> *cur = _root;
+        while (cur)
+        {
+            if (cur->_key < key)
+            {
+                parent = cur;
+                cur = cur->_right;
+            }
+            else if (cur->_key > key)
+            {
+                parent = cur;
+                cur = cur->_left;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        cur = new BinarySearchTreeNode<K, V>(key, value);
+        if (parent->_key < key)
+        {
+            parent->_right = cur;
+        }
+        else
+        {
+            parent->_left = cur;
+        }
+        return true;
+    }
+    BinarySearchTreeNode<K, V> *Find(const K &key)
+    {
+        BinarySearchTreeNode<K, V> *cur = _root;
+        while (cur)
+        {
+            if (cur->_key < key)
+            {
+                cur = cur->_right;
+            }
+            else if (cur->_key > key)
+            {
+                cur = cur->_left;
+            }
+            else
+            {
+                return cur;
+            }
+        }
+        return cur;
+    }
+    bool Erase(const K &key)
+    {
+        BinarySearchTreeNode<K, V> *parent = nullptr;
+        BinarySearchTreeNode<K, V> *cur = _root;
+        while (cur)
+        {
+            if (cur->_key < key)
+            {
+                parent = cur;
+                cur = cur->_right;
+            }
+            else if (cur->_key > key)
+            {
+                parent = cur;
+                cur = cur->_left;
+            }
+            else
+            {
+                // 删除
+                // 左为空，父亲指向我的右
+                if (cur->_left == nullptr)
+                {
+                    // if(parent == nullptr)
+                    if (cur == _root)
+                    {
+                        _root = cur->_right;
+                    }
+                    else
+                    {
+                        if (cur == parent->_left)
+                        {
+                            parent->_left = cur->_right;
+                        }
+                        else
+                        {
+                            parent->_right = cur->_right;
+                        }
+                    }
+
+                    delete cur;
+                }
+                else if (cur->_right == nullptr)
+                {
+                    // if(parent == nullptr)
+                    if (cur == _root)
+                    {
+                        _root = cur->_left;
+                    }
+                    else
+                    {
+                        // 右为空，父亲指向我的左
+                        if (cur == parent->_left)
+                        {
+                            parent->_left = cur->_left;
+                        }
+                        else
+                        {
+                            parent->_right = cur->_left;
+                        }
+                    }
+
+                    delete cur;
+                }
+                else
+                {
+                    // 左右都不为空，替换法删除
+                    //
+                    // 查找右子树的最左节点替代删除
+                    BinarySearchTreeNode<K, V> *rightMinParent = cur;
+                    BinarySearchTreeNode<K, V> *rightMin = cur->_right;
+                    while (rightMin->_left)
+                    {
+                        rightMinParent = rightMin;
+                        rightMin = rightMin->_left;
+                    }
+                    cur->_key = cur->_key ^ rightMin->_key;
+                    rightMin->_key = cur->_key ^ rightMin->_key;
+                    cur->_key = cur->_key ^ rightMin->_key;
+                    if (rightMinParent->_left == rightMin)
+                        rightMinParent->_left = rightMin->_right;
+                    else
+                        rightMinParent->_right = rightMin->_right;
+
+                    delete rightMin;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    void InOrder()
+    {
+        _InOrder(_root);
+        std::cout << std::endl;
+    }
+
+private:
+    void _InOrder(BinarySearchTreeNode<K, V> *root)
+    {
+        if (root == nullptr)
+        {
+            return;
+        }
+        _InOrder(root->_left);
+        std::cout << root->_key << ":" << root->_value << std::endl;
+        _InOrder(root->_right);
+    }
+
+private:
+    BinarySearchTreeNode<K, V> *_root = nullptr;
+};
+```
+
+### 5.5 二叉搜索树的性能分析
+
+插入和删除操作都必须先查找,查找效率代表了二叉搜索树中各个操作的性能.  
+对有n个节点的二叉搜索树,若每个元素查找的概率相等,则二叉搜索树平均查找长度是节点再二叉搜索树的深度的函数,即节点越深,比较次数越多.  
+对于同一个关键码集合,如果各关键码插入的次序不同,可能得到不同结构的二叉搜索树.  
+最优情况下,二叉搜索树为完全二叉树(或接近完全二叉树),其平均比较次数为: $\log_2N$ .  
+最差情况下,二叉搜索树退化为单支树(或接近单支树),其平均比较次数为: $\frac{N}{2}$ .  
