@@ -135,3 +135,46 @@ void TestSet()
 #### 3.2.2 map的使用
 
 1. `map` 的模板参数说明
+   ```C++{.line-numbers}
+   template<class Key,class T,class Compare = less<Key>,class Alloc = allocator<pair<const Key,T>>>
+   class map;
+   ```
+   `Key` : 键值对中 `Key` 的类型.
+   `T` : 键值对中 `value` 的类型.
+   `Compare` : 比较器的类型, `map` 中的元素是按照 `Key` 来比较的,缺省情况下按照小于来比较.
+   `Alloc` : 通过空间配置器来申请底层空间,不需要用户传递,除非用户不想使用标准库提供的空间配置器.
+2. `map` 的构造
+   | 函数声明 |      功能介绍      |
+   | :------: | :----------------: |
+   | `map()`  | 构造一个空的 `map` |
+3. `map` 的迭代器
+   |         函数声明         |                                功能介绍                                 |
+   | :----------------------: | :---------------------------------------------------------------------: |
+   |   `begin()` 和 `end()`   |       `begin` 返回首元素的位置, `end` 返回最后一个元素下一个位置        |
+   |  `cbegin()` 和 `cend()`  | 与 `begin` 和 `end` 意义相同,但 `cbegin` 和 `cend` 所指向的元素不能修改 |
+   |  `rbegin()` 和 `rend()`  |                               反向迭代器                                |
+   | `crbegin()` 和 `crend()` |                        `const` 修饰的反向迭代器                         |
+4. `map` 的容量与元素访问
+   |                   函数声明                   |                          功能简介                           |
+   | :------------------------------------------: | :---------------------------------------------------------: |
+   |             `bool empty()const`              | 检测 `map` 中的元素是否为空,是返回 `true` ,否则返回 `false` |
+   |           `size_type size()const`            |                 返回 `map` 中有效元素的个数                 |
+   | `mapped_type& operator[](const key_type& k)` |                  返回 `key` 对应的 `value`                  |
+   > 在元素访问时,有一个与 `operator[]` 类似的函数 `at()` ,都是通过 `key` 找到 `key` 对应的 `value` 然后返回其引用.不同的是,当 `key` 不存在时, `operator[]` 用默认 `value` 与 `key` 构造键值对然后插入,返回默认 `value` , `at()` 函数直接抛异常.
+5. `map` 中元素的修改
+   |                     函数声明                      |                                                                        功能简介                                                                         |
+   | :-----------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------: |
+   | `pair<iterator,bool> insert(const value_type& x)` |               在 `map` 中插入键值对 `x` ,注意 `x` 是一个键值对,返回值也是键值对: `iterator`代表新插入元素的位置, `bool` 代表释放插入成功                |
+   |          `void erase(iterator position)`          |                                                              删除 `position` 位置上的元素                                                               |
+   |       `size_type erase(const key_type& x)`        |                                                                  删除键值为 `x` 的元素                                                                  |
+   |    `void erase(iterator first,iterator last)`     |                                                            删除 `[first,last)` 区间中的元素                                                             |
+   |   `void swap(map<Key,T,Compare,Allocator>& mp)`   |                                                                 交换两个 `map` 中的元素                                                                 |
+   |                  `void clear()`                   |                                                                  将 `map` 中的元素清空                                                                  |
+   |        `iterator find(const key_type& x)`         |                                      在 `map` 中插入 `key` 为 `x` 的元素,找到返回该元素位置的迭代器,否则返回 `end`                                      |
+   |   `const_iterator find(const key_type& x)const`   |                                 在 `map` 中插入 `key` 为 `x` 的元素,找到返回该元素位置的 `const` 迭代器,否则返回 `cend`                                 |
+   |      size_type count(const key_type& x)const      | 返回 `key` 为 `x` 的键值在 `map` 中的个数,注意 `map` 中 `key` 是唯一的,因此该函数的返回值要么为0,要么为1,因此可以用该函数检测一个 `key` 是否在 `map` 中 |
+
+**总结** :
+1. `map` 中的元素是键值对.
+2. `map` 中的 `key` 是唯一的,并且不能修改.
+3. 默认按照小于方式对 `key` 进行比较.
