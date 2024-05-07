@@ -182,6 +182,37 @@ void TestSet()
 5. `map` 的底层为平衡搜索树(红黑树),查找效率比较高 $\Omicron \log_2N$ .
 6. 支持 `[]` 操作符`, `operator[]` 中实际进行插入查找.
 
+```C++{.line-numbers}
+#include<string>
+#include<map>
+using namespace std;
+void TestMap()
+{
+   map<string,string> m;
+   pair<string,string> kv1("cloud","云母");
+   m.insert(kv1);//将键值对kv1插入map中
+   m.insert(pair<string,string>("Luna","月亮"));//匿名对象
+   m.insert(make_pair("Sun","太阳"));//用make_pair函数构造键值对
+   m.insert({"Star","星星"});//{}表示隐式类型转换,单参构造函数支持隐式类型转换
+   pair<string,string> kv2={"earth","地球"};
+   m["sky"]="天空";
+   auto it = m.begin()
+   while(it != m.end())
+   {
+      cout << (*it).first << ":" << (*it).second << endl;
+      cout << it->first << ":" << it->second << endl;
+      cout << it.operator->()->first << ":" << it.operator->()->second << endl;
+      ++it;
+   }
+   cout << endl;
+   for(auto& kv : m)
+   {
+      auto&[x,y] = kv;//C++17
+      cout << x << ":" << y << endl;
+   }
+}
+```
+
 ### 3.3 multiset
 
 #### 3.3.1 multiset的介绍
