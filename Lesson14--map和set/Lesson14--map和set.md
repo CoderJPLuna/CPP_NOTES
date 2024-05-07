@@ -216,3 +216,46 @@ void TestMap()
 ### 3.3 multiset
 
 #### 3.3.1 multiset的介绍
+
+1. `multiset` 是按照特定顺序存储元素的容器,其中元素是可以重复的.
+2. 在 `multiset` 中,元素的 `value` 也会识别它(因为 `multiset` 中本身存储的就是 `<value,value>` 组成的键值对,因此 `value` 本身就是 `key` ). `multiset` 元素的值不能在容器中修改,但可以从容器中插入或删除.
+3. 在内部, `multiset` 中的元素总是按照其内部比较规则所指示的特定严格弱排序准则进行排序.
+4. `multiset` 容器通过 `key` 访问单个元素的速度通常比 `unordered_multiset` 容器慢,但当使用迭代器遍历时会得到一个有序序列.
+5. `multiset` 底层结构为二叉搜索树(红黑树).
+
+注意:
+1. `multiset` 中在底层存储的是 `<value,value>` 的键值对.
+2. `multiset` 的插入接口中只需要插入即可.
+3. 与 `set` 的区别是, `multiset` 中的元素可以重复, `set` 中 `value` 是唯一的.
+4. 使用迭代器对 `multiset` 中的元素进行遍历,可以得到有序的序列.
+5. `multiset` 中的元素不能修改.
+6. 在 `multiset` 中找某个元素,时间复杂度为 $\Omicron(\log_2N)$ .
+7. `multiset` 的作用:可以对元素进行排序.
+
+#### 3.3.2 multiset的使用
+
+```C++{.line-numbers}
+#include <set>
+void TestMultiset()
+{
+   int array[] = {2,1,3,9,6,0,5,8,4,7};
+   //multiset在底层实际存储的是<int,int>键值对
+   multiset<int> s(array,array+sizeof(array)/sizeof(array[0]));
+   for(auto& e : s)
+      cout << e << " ";
+   cout << endl;
+   return 0;
+}
+```
+
+### 3.4 multimap
+
+#### 3.4.1 multimap的介绍
+
+1. `multimap` 是关联式容器,它按照特定的顺序,存储由 `key` 和 `value` 映射成的键值对 `<key,value>` ,其中多个键值对之间的 `key` 是可以重复的.
+2. 在 `multimap` 中,通常按照 `key` 排序和唯一地标识元素,而映射的 `value` 存储与 `key` 关联的内容. `key` 和 `value` 的类型可能不同,通过 `multimap` 内部的成员类型 `value_type` 组合在一起, `value_type` 是组合 `key` 和 `value` 的键值对: `typedef pair<const Key,T> value_type;` .
+3. 在内部, `multimap` 中的元素总是通过其内部比较对象,按照指定的特定严格弱排序标准对 `key` 进行排序的.
+4. `multimap` 通过 `key` 访问单个元素的速度通常比 `unordered_multimap` 容器慢,但是使用迭代器直接遍历 `multimap` 中的元素可以等到关于 `key` 有序的序列.
+5. `multimap` 在底层用二叉搜索树(红黑树)来实现.
+
+**注意: `multimap` 和 `map` 的唯一不同就是 `map` 中的 `key` 是唯一的,而 `multimap` 中的 `key` 是可以重复的.
