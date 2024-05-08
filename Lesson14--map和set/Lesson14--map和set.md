@@ -259,3 +259,10 @@ void TestMultiset()
 5. `multimap` 在底层用二叉搜索树(红黑树)来实现.
 
 **注意: `multimap` 和 `map` 的唯一不同就是 `map` 中的 `key` 是唯一的,而 `multimap` 中的 `key` 是可以重复的.
+
+#### .34.2 multimap的使用
+
+1. `multimap` 接口与 `map` 类似.
+2. `multimap` 中的元素默认将 `key` 按照小于比较.
+3. `multimap` 中没有重载 `operator[]` .
+4. 头文件与 `map` 相同.
