@@ -524,7 +524,7 @@ public:
             }
             else
             {
-                return cur;
+                return nullptr;
             }
         }
         return cur;
